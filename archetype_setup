@@ -1,0 +1,45 @@
+mvn archetype:generate \
+  -DgroupId=com.example \
+  -DartifactId=my-app \
+  -DarchetypeArtifactId=maven-archetype-quickstart \
+  -DinteractiveMode=false
+
+
+mvn archetype:create-from-project
+
+
+target/generated-sources/archetype
+
+
+cd target/generated-sources/archetype
+
+
+mvn install
+
+mvn archetype:generate \
+  -DarchetypeGroupId=com.example \
+  -DarchetypeArtifactId=my-app-archetype \
+  -DarchetypeVersion=1.0-SNAPSHOT \
+  -DgroupId=com.newproject \
+  -DartifactId=new-app
+
+
+src/main/resources/META-INF/maven/archetype-metadata.xml
+
+
+<archetype-descriptor name="my-app-archetype">
+  <fileSets>
+    <fileSet>
+      <directory>src/main/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>src/test/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>
