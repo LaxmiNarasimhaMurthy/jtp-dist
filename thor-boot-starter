@@ -1,0 +1,97 @@
+
+📂 Project Structure
+thor-spring-starter/
+ ├─ pom.xml
+ └─ src/main/java/com/sgx/thor/autoconfig/
+      └─ ThorAutoConfiguration.java
+ └─ src/main/resources/META-INF/
+      └─ spring.factories
+
+📝 pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.sgx</groupId>
+  <artifactId>thor-spring-starter</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Thor Spring Starter</name>
+
+  <dependencies>
+    <!-- Core Spring Boot starter -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+  </dependencies>
+</project>
+
+📝 Conditional Auto‑Configuration Class
+src/main/java/com/sgx/thor/autoconfig/ThorAutoConfiguration.java
+package com.sgx.thor.autoconfig;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ThorAutoConfiguration {
+
+    @Bean
+    @ConditionalOnProperty(
+        name = "thor.enabled",
+        havingValue = "true",
+        matchIfMissing = false
+    )
+    public String thorBanner() {
+        return "⚡ Thor Starter Active!";
+    }
+}
+🔎 Explanation
+* @ConditionalOnProperty → bean is only created if thor.enabled=true in application.properties.
+* If property is missing or set to false, the bean won’t load.
+
+📝 Register Auto‑Configuration
+src/main/resources/META-INF/spring.factories
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sgx.thor.autoconfig.ThorAutoConfiguration
+
+📂 Usage in a Project
+1. Add Dependency
+In your app’s pom.xml:
+<dependency>
+  <groupId>com.sgx</groupId>
+  <artifactId>thor-spring-starter</artifactId>
+  <version>1.0-SNAPSHOT</version>
+</dependency>
+2. Configure Property
+src/main/resources/application.properties:
+thor.enabled=true
+3. Use It
+@SpringBootApplication
+public class DemoApp {
+    public static void main(String[] args) {
+        var ctx = SpringApplication.run(DemoApp.class, args);
+        if (ctx.containsBean("thorBanner")) {
+            System.out.println(ctx.getBean("thorBanner"));
+        } else {
+            System.out.println("Thor starter disabled.");
+        }
+    }
+}
+
+✅ Behavior
+* With thor.enabled=true → prints ⚡ Thor Starter Active!
+* With thor.enabled=false or property missing → prints Thor starter disabled.
+
+🚀 Extensions
+You can add more conditional annotations:
+* @ConditionalOnClass(SomeLibrary.class) → only load if a class is on the classpath.
+* @ConditionalOnMissingBean → only load if user hasn’t defined their own bean.
+* Combine multiple conditions for flexible starters.
+
+Summary:  This example shows a custom Spring Boot starter with conditional configuration based on a property. It demonstrates how to bundle dependencies, auto‑configuration, and conditional activation into a reusable starter.
+
+Would you like me to extend this into a real-world style starter (e.g., auto‑configuring a custom service with configurable properties like thor.message=Hello) so you can see how to expose configurable beans to applications?
