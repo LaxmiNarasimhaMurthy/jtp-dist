@@ -1,0 +1,24 @@
+security:
+  oauth2:
+    client:
+      registration:
+        gcp:
+          client-id: your-client-id
+          client-secret: your-client-secret
+          scope: 
+            - https://www.googleapis.com/auth/cloud-platform
+          authorization-grant-type: client_credentials
+      provider:
+        gcp:
+          token-uri: https://oauth2.googleapis.com/token
+          
+gcp:
+  metadata:
+    url: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token
+    cache:
+      expiration: 3600 # Cache expiration time in seconds
+
+logging:
+  level:
+    root: INFO
+    com.example.authlib: DEBUG
