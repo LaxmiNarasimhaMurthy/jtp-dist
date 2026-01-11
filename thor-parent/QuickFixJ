@@ -1,0 +1,69 @@
+You can generate your own FIX code classes in QuickFIX/J by customizing the XML FIX dictionary and running the QuickFIX/J code generator (MessageCodeGenerator). This lets you add custom fields, define new messages, or extend existing ones, and the generator will produce strongly‑typed Java classes for you. deepwiki.com quickfixj.org
+
+🔎 Key Steps to Generate Custom FIX Classes
+1. Prepare a Custom FIX Dictionary
+* QuickFIX/J uses XML data dictionaries (e.g., FIX44.xml) to define fields, components, and messages.
+* To add your own:
+    * Copy the base dictionary (e.g., FIX44.xml).
+    * Add custom fields: <field number="9001" name="CustomField" type="STRING"/>
+    * 
+    * Add custom messages: <message name="CustomMessage" msgtype="Z" msgcat="app">
+    *   <field name="CustomField" required="Y"/>
+    * </message>
+    * 
+* Save as CUSTOM_FIX.xml.
+
+2. Run the QuickFIX/J Code Generator
+* QuickFIX/J provides quickfix.codegen.MessageCodeGenerator.
+* Example Maven plugin configuration: <plugin>
+*   <groupId>org.quickfixj</groupId>
+*   <artifactId>quickfixj-codegenerator</artifactId>
+*   <version>2.3.0</version>
+*   <executions>
+*     <execution>
+*       <goals>
+*         <goal>generate</goal>
+*       </goals>
+*       <configuration>
+*         <specification>/path/to/CUSTOM_FIX.xml</specification>
+*         <transformDirectory>${project.build.directory}/generated-sources</transformDirectory>
+*       </configuration>
+*     </execution>
+*   </executions>
+* </plugin>
+* 
+* This generates:
+    * Message classes (CustomMessage.java)
+    * Field classes (CustomField.java)
+    * Component classes
+    * Factory classes
+
+3. Use Generated Classes in Your Code
+* After generation, include the classes in your project: import quickfix.field.CustomField;
+* import quickfix.fix44.CustomMessage;
+* 
+* CustomMessage msg = new CustomMessage();
+* msg.set(new CustomField("HelloWorld"));
+* session.send(msg);
+* 
+* You now have type‑safe access to your custom FIX fields and messages.
+
+4. Advanced Customization
+* You can define code generation tasks (MessageCodeGenerator.Task) to:
+    * Change package names.
+    * Apply XSLT transforms for custom output.
+    * Integrate with FIX Orchestra for richer metadata deepwiki.com quickfixj.org.
+
+📊 Comparison of Approaches
+Approach	Pros	Cons
+Modify existing FIX dictionary	Simple, quick, works with standard generator	May diverge from official FIX spec
+Create new custom dictionary	Full control, supports new messages/fields	Requires maintaining schema evolution
+Use FIX Orchestra	Rich metadata, schema evolution support	More complex setup
+⚠️ Risks & Considerations
+* Schema evolution: If you add fields/messages, ensure both counterparties agree on the custom FIX spec.
+* Versioning: Keep track of dictionary versions to avoid mismatches.
+* Testing: Always validate generated classes against a FIX simulator or counterparty before production.
+
+✅ In practice: Most teams start by modifying FIX44.xml or FIX50SP2.xml to add custom fields/messages, then run the QuickFIX/J code generator to produce Java classes. This gives you type‑safe FIX messages tailored to your business needs.
+
+Would you like me to show you a full Maven project example (with dictionary, plugin config, and generated class usage) so you can copy‑paste and run it to generate your own FIX code classes immediately? quickfixj.org
