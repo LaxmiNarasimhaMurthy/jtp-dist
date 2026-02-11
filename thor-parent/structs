@@ -1,0 +1,72 @@
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
+import java.nio.charset.StandardCharsets;
+
+@FieldOrder({"type", "subtype"})
+public class TransactionType extends Structure {
+    public byte[] type = new byte[2];
+    public byte[] subtype = new byte[2];
+
+    public TransactionType() { super(ALIGN_NONE); }
+
+    /** Convenient setter for the 2-char codes */
+    public void setCodes(String t, String st) {
+        System.arraycopy(t.getBytes(StandardCharsets.US_ASCII), 0, type, 0, 2);
+        System.arraycopy(st.getBytes(StandardCharsets.US_ASCII), 0, subtype, 0, 2);
+    }
+
+    public static class ByReference extends TransactionType implements Structure.ByReference {}
+}
+
+---
+
+@FieldOrder({
+    "country_c", "market_c", "instrument_group_c", "modifier_c", 
+    "commodity_n", "expiration_date_n", "strike_price_i"
+})
+public class Series extends Structure {
+    public byte country_c;
+    public byte market_c;
+    public byte instrument_group_c;
+    public byte modifier_c;
+    public short commodity_n;
+    public short expiration_date_n;
+    public int strike_price_i;
+
+    public Series() { super(ALIGN_NONE); }
+
+    public static class ByReference extends Series implements Structure.ByReference {}
+}
+
+---
+
+@FieldOrder({"transaction_type", "series", "segment_number_n", "filler_2_s"})
+public class QueryMarket extends Structure {
+    public TransactionType transaction_type; // Automatically treated as "By Value" (inline)
+    public Series series;                     // Automatically treated as "By Value" (inline)
+    public short segment_number_n;
+    public byte[] filler_2_s = new byte[2];
+
+    public QueryMarket() { super(ALIGN_NONE); }
+
+    public static class ByReference extends QueryMarket implements Structure.ByReference {}
+}
+
+
+// 1. Initialize
+QueryMarket.ByReference query = new QueryMarket.ByReference();
+
+// 2. Set TransactionType using the helper (no more manual array indexing)
+query.transaction_type.setCodes("DQ", "23");
+
+// 3. Series and Segment (already zeroed by JNA constructor, no action needed for wildcards)
+// query.series.country_c = 0; // redundant
+// query.segment_number_n = 0; // redundant
+
+// 4. Fillers (already zeroed by JNA constructor)
+// query.filler_2_s[0] = 0;    // redundant
+
+// 5. Sync to native memory
+query.write();
+
+System.out.println("QueryMarket size: " + query.size() + " bytes");
